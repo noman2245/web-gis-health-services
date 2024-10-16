@@ -1,0 +1,31 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-74.0059, 40.7128]
+            },
+            "properties": {
+                "name": "New York General Hospital",
+                "type": "hospital",
+                "address": "123 Main St, New York, NY",
+                "contact": "+1 212-555-0123"
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-73.988, 40.7306]
+            },
+            "properties": {
+                "name": "Downtown Clinic",
+                "type": "clinic",
+                "address": "456 Elm St, New York, NY",
+                "contact": "+1 212-555-0456"
+            }
+        }
+    ]
+}
