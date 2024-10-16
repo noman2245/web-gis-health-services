@@ -1,0 +1,69 @@
+// Initialize the map
+var map = L.map('map').setView([40.7128, -74.0060], 12); // New York City center, adjust as needed
+
+// Add tile layer (OpenStreetMap)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+// Load GeoJSON data for health services
+fetch('data/health_services.geojson')
+    .then(response => response.json())
+    .then(data => {
+        L.geoJSON(data, {
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup('<h3>' + feature.properties.name + '</h3>' +
+                    '<p>Type: ' + feature.properties.type + '</p>' +
+                    '<p>Address: ' + feature.properties.address + '</p>' +
+                    '<p>Contact: ' + feature.properties.contact + '</p>');
+            }
+        }).addTo(map);
+    });
+
+// Geolocation - get user's current location
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function (position) {
+        var userLatLng = [position.coords.latitude, position.coords.longitude];
+        var userMarker = L.marker(userLatLng).addTo(map)
+            .bindPopup('You are here!')
+            .openPopup();
+
+        map.setView(userLatLng, 14);
+    });
+} else {
+    alert("Geolocation is not supported by this browser.");
+}
+
+// Search functionality
+document.getElementById('search-button').addEventListener('click', function () {
+    var searchQuery = document.getElementById('search-box').value.toLowerCase();
+    
+    fetch('data/health_services.geojson')
+        .then(response => response.json())
+        .then(data => {
+            var results = data.features.filter(service => 
+                service.properties.name.toLowerCase().includes(searchQuery) || 
+                service.properties.type.toLowerCase().includes(searchQuery)
+            );
+
+            if (results.length > 0) {
+                map.eachLayer(function (layer) {
+                    if (layer.options && layer.options.pane === 'markerPane') {
+                        map.removeLayer(layer); // Remove previous markers
+                    }
+                });
+
+                results.forEach(function (result) {
+                    var latLng = [result.geometry.coordinates[1], result.geometry.coordinates[0]];
+                    L.marker(latLng).addTo(map)
+                        .bindPopup('<h3>' + result.properties.name + '</h3>' +
+                            '<p>Type: ' + result.properties.type + '</p>' +
+                            '<p>Address: ' + result.properties.address + '</p>');
+                    map.setView(latLng, 14);
+                });
+            } else {
+                alert('No results found!');
+            }
+        });
+});
